@@ -1,0 +1,4 @@
+*.o
+*.tst
+dcp
+dcp-cbr

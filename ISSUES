@@ -1,0 +1,18 @@
+
+These are not really ISSUES, but the characteristics of the algorythm to be aware of
+
+- HASH calculation block size (HASHBLOCK) NEEDS to be a multiply of Buffered read size (BUFSIZE),
+  so the threaded reading algorythm does not lose any bytes between reading and digest updating
+
+- The output HASH list depends on the number of hashes (CPU/core number) that created it,
+  because the BUFSIZE and HASHBLOCK size have to be aligned by every thread, except when
+  the file size is a multiply of HASHBLOCK (and BUFSIZE)
+
+- When the file size changes, if thread number (CPU core number) is >1, then the sizes of chunks
+  also changes, making an offset to the boundary of reads and hash calculation, changing ALL hashes
+
+- Options that should be runtime:
+  - DEBUG flag
+  - HASHBLOCK size (maybe a multiplier number) ?
+  - Read buffer size??? (BUFSIZE)?
+  - Write output to log? Shell rediects are easier

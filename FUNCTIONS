@@ -1,0 +1,200 @@
+Khimera.cloud DCP Sourcecode FUNCTIONS documentation
+
+Makefile
+===============================================================================================
+
+This gmake recipe list compiles dcp.
+
+Notable Targets:
+----------------
+default (no parameters) - the 2 binaries compiled (dcp and dcp-cbr)
+strip - the 2 binaries compiled and stripped from extra gdb debug informations
+all - default + strip + testfiles
+testfiles - test-a.tst (1GB) randomized, copied to test-b.tst and 10 bytes randomly changed
+clean - clean up all compiled files, objects, binaries, testfiles
+
+parameters:
+-----------
+S=1 - compile statically linked binaries (off by default)
+D=1 - compile in DEBUG printf() messages (off by default)
+
+
+dcp.c/h
+===============================================================================================
+
+This is the main program, a cli tool for differential copying to local files,
+using Multi-threaded xxHash to compare blocks of the source and destination files.
+
+int main(int argc, char* argv[])
+--------------------------------
+Self mandatory
+Process the parameters, display error/usage/version/licensing information if needed,
+then call compare() if everything was in order.
+
+void version(int license)
+-------------------------
+Display version information and if parameter is greater than 0, also display licenses
+the -V --version , -l and --license arguments call this
+
+void usage(char* errmsg)
+------------------------
+Display usage information (parameters) and if an incorrect argument was supplied, some
+error message
+
+
+defs.h
+===============================================================================================
+
+Contains various defines like version information, copyrights, etc
+
+#define BUFSIZE 1048576
+-----------------------
+This is a 1M R/W buffer, for File (and block device) IO.
+Memory is allocated for this for every thread while calculating xxHash table
+(Threads count should equal the number of CPUs / Cores)
+
+#define ex_err(...)
+-------------------
+This preprocessor macro displays the char* error message then exit(EXIT_FAILURE)
+
+
+compare.c/h
+===============================================================================================
+
+void compare(char* src, char* dst, int verbose, int dry, int sha, int copy, int skipxx)
+---------------------------------------------------------------------------------------
+This is called from main(), does the actual comapring stuff
+The only call of this function is from main(), could be integrated...
+
+unsigned long copyBytes(char* src, char* dst, \
+			unsigned long offset, unsigned long length, \
+			int verbose)
+----------------------------------------------------------------------
+This functions copies length bytes from offset@src to offset@dst
+Can be used to copy the while file, or just parts of it.
+
+void calcBothSha(char* src, char* dst, unsigned long until, int verbose)
+------------------------------------------------------------------------
+This function calculates the SHA256 hash of src and dst, from offset 0,
+but only up to "until" - so can be used to compare files if dst is larger
+then src - e.g. cloning the source to a larger disk
+
+
+file.c/h
+===============================================================================================
+
+typedef struct workFile {
+ //-1 if file can't be stat'ed
+ //0 for unknown
+ //1 for block
+ //2 for normal
+ int type;
+ unsigned long size;
+} workFile;
+-------------------------------
+Memory structure for infos on a file
+
+workFile getFileInfo(char* fn)
+------------------------------
+Get back the above infos for a file named fn
+
+char* humanSize(unsigned long bytes)
+------------------------------------
+display a lot of bytes as a human readable number in GB, MB, etc. - this is
+only cut by multiplies of 1000, not 1024, so it IS GB and not GiB, as defined by SI XD
+Also, it's easier to process this way
+
+
+hash.c/h
+===============================================================================================
+
+XXH128_canonical_t* getFileHash(char* fname, unsigned long until, int verbose)
+------------------------------------------------------------------------------
+Get the xxHash for a file, but only "until" bytes
+Canonical means it's High first (Big Endian)
+Also XXH128 is 2 XXH64 concatenated - so it's 16 byte (128 bit) digest.
+
+char* humanDigest(XXH128_canonical_t* hash)
+-------------------------------------------
+Get a human readable digest of a canonical form of xxHash
+It's 32 bytes (+1 trailing 0) - 16x a 2 byte long hexadecimal character
+
+#define HASHBLOCK BUFSIZE*20
+----------------------------
+Blocksize to hash in chunks by a hashing thread 
+The larger it is, the less Hash algos are ran, but the more data moved if one differs
+ALWAYS should be a multiply of BUFSIZE - the I/O buffer, or BAAAD things can happen
+- e.g. misaligment, overlapping chunks, etc.
+20MB by default, 20 times BUFSIZE which is 1MB
+
+typedef struct hashItem {
+ unsigned long offset;
+ unsigned long length;
+ XXH128_canonical_t digest;
+} hashItem;
+----------------------------
+This is the structure for a hashItem in HashList (xxHash Table to human beings)
+It contains a canon digest, it's start position (offset), and
+it's length - because it can be a few bytes shorter/longer than a stadard chunk,
+because of division of file size by CPU/number
+
+typedef struct hashList {
+ unsigned long hashNo;
+ hashItem* hash[];
+} hashList;
+-------------------------
+This will be pointer structure which is dynamically allocated by the hashing thread
+by the size of the file, chunks, number of cores and HASHBLOCK
+Also all hashes list (hash table) of a file can be stored in this sequentially
+
+hashList* getFileHashChunks(char* fname, unsigned long until, int verbose)
+--------------------------------------------------------------------------
+Get a hashList (xxHash Table) for fname until "until" bytes
+This is for block devices as a destination (target) which can be larger
+than the source file/device
+
+typedef struct threadHashInfo {
+ pthread_t id;
+ int verbose;
+ char* fn;
+ unsigned long start, end;
+ hashList* hashL;
+} threadHashInfo;
+--------------------------------
+This struct is passed to a hashing thread, contains all neccesery
+parameters for a thread to know what to do
+
+void* threadHash(void* arg)
+---------------------------
+Function to run for every thread / chunk, calculates it's chunks all hash blocks,
+than returns the pointer to it's own threadHashInfo it was called with,
+but it's *hashL hashList pointer populated.
+
+typedef struct threadDisInfo {
+ pthread_t id;
+ int cpus;
+ threadHashInfo *others;
+} threadDisInfo;
+------------------------------
+Data structure for info display thread, the number of effective CPUs given back,
+with a pointer to the other threads' data structures
+
+void* threadDisplay(void* arg)
+------------------------------
+This thread is only run if verbose mode is on, it displays
+the status of the other threads
+
+char* sha256sum(char *fname, unsigned long until, int verbose)
+--------------------------------------------------------------
+Do a SHA256 hash of file, until "until" bytes
+This may be needed for larger destinations than targets, as above
+
+
+dcp-cbr.c
+===============================================================================================
+
+This small program is a test tool, that compiles into the "dcp-cbr" binary, accepts 2 prameters:
+a filename and an integer number (defaults to 1).
+It randomizes integer number of bytes and puts them in random locations in the filename.
+It's only function is int main (int argc, char* argv[])
+It only needs defs.h for buffer size and file.o for file type and size query.
