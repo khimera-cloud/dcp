@@ -79,8 +79,9 @@ char* humanDigest(XXH128_canonical_t* hash) {
 //////////////////////////////////////////////////////////////////////////////////////
 // Get a chunked list of hashes of a file
 
-hashList* getFileHashChunks(char* fname, unsigned long until, int verbose) {
- int cpus = get_nprocs();
+hashList* getFileHashChunks(char* fname, unsigned long until, int verbose, int onethread) {
+ int cpus = 1;
+ if (onethread == 0) cpus = get_nprocs();
 
 #ifdef DEBUG
  printf("CPUs found: %i\n", cpus);

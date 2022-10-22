@@ -26,7 +26,7 @@ typedef struct hashList {
 } hashList;
 
 //Get hashList (HASH Table) for fname until until bytes (block devices)
-hashList* getFileHashChunks(char* fname, unsigned long until, int verbose);
+hashList* getFileHashChunks(char* fname, unsigned long until, int verbose, int onethread);
 
 //This struct is passed to a hashing thread
 typedef struct threadHashInfo {

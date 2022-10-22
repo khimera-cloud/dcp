@@ -11,7 +11,7 @@
 #include "compare.h"
 #include "hash.h"
 
-void compare(workFile srct, workFile dstt, int verbose, int dry, int sha, int copy, int skipxx) {
+void compare(workFile srct, workFile dstt, int verbose, int dry, int sha, int copy, int skipxx, int onethread) {
 
  //SOURCE info
 
@@ -147,7 +147,7 @@ void compare(workFile srct, workFile dstt, int verbose, int dry, int sha, int co
 
  //CALC source HASH table
  start = clock();
- hashList* srcHL = getFileHashChunks(srct.name, srct.size, verbose);
+ hashList* srcHL = getFileHashChunks(srct.name, srct.size, verbose, onethread);
 
  if (verbose) {
   clock_t end = clock();
@@ -157,7 +157,7 @@ void compare(workFile srct, workFile dstt, int verbose, int dry, int sha, int co
 
  //CALC dest HASH table
  start = clock();
- hashList* dstHL = getFileHashChunks(dstt.name, srct.size, verbose);
+ hashList* dstHL = getFileHashChunks(dstt.name, srct.size, verbose, onethread);
 
  if (verbose) {
   clock_t end = clock();

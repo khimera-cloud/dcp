@@ -61,7 +61,7 @@ This preprocessor macro displays the char* error message then exit(EXIT_FAILURE)
 compare.c/h
 ===============================================================================================
 
-void compare(char* src, char* dst, int verbose, int dry, int sha, int copy, int skipxx)
+void compare(char* src, char* dst, int verbose, int dry, int sha, int copy, int skipxx, int onethread)
 ---------------------------------------------------------------------------------------
 This is called from main(), does the actual comapring stuff
 The only call of this function is from main(), could be integrated...
@@ -147,7 +147,7 @@ This will be pointer structure which is dynamically allocated by the hashing thr
 by the size of the file, chunks, number of cores and HASHBLOCK
 Also all hashes list (hash table) of a file can be stored in this sequentially
 
-hashList* getFileHashChunks(char* fname, unsigned long until, int verbose)
+hashList* getFileHashChunks(char* fname, unsigned long until, int verbose, int onethread)
 --------------------------------------------------------------------------
 Get a hashList (xxHash Table) for fname until "until" bytes
 This is for block devices as a destination (target) which can be larger

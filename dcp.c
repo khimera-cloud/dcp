@@ -30,12 +30,13 @@ void usage(char* errmsg) {
  printf("-s, --sha256		calculate (and display) SHA256 hash after copy\n");
  printf("-c, --copy		always copy the whole while if differs\n");
  printf("-x, --skipxx		skip the xxHash on the whole file, just do xxHash tables\n");
+ printf("-1, --one-thread	use only one thread while computing the chunks' hashes\n");
  if (errmsg) exit(EXIT_FAILURE);
  exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char* argv[]) {
- int verbose = 0, dry = 0, sha = 0, copy = 0, skipxx = 0;
+ int verbose = 0, dry = 0, sha = 0, copy = 0, skipxx = 0, onethread = 0;
 
  if (argc<2) usage("Not enough parameters!");
  if ((strcmp(argv[1],"-h")==0) || (strcmp(argv[1],"--help"))==0) usage(NULL);
@@ -64,11 +65,15 @@ int main(int argc, char* argv[]) {
    skipxx = 1;
    continue;
   }
+  if ((strcmp(argv[i],"-1")==0) || (strcmp(argv[i],"--one-thread"))==0) {
+   onethread = 1;
+   continue;
+  }
   usage("Unkown option!");
  }
 
  if (strcmp(argv[argc-2], argv[argc-1])==0) ex_err("Source and destination can't be the same!\n");
 
- compare(getFileInfo(argv[argc-2]), getFileInfo(argv[argc-1]), verbose, dry, sha, copy, skipxx);
+ compare(getFileInfo(argv[argc-2]), getFileInfo(argv[argc-1]), verbose, dry, sha, copy, skipxx, onethread);
  return 0;
 }

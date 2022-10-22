@@ -1,4 +1,4 @@
-void compare(workFile srct, workFile dstt, int verbose, int dry, int sha, int copy, int skipxx);
+void compare(workFile srct, workFile dstt, int verbose, int dry, int sha, int copy, int skipxx, int onethread);
 
 //src file name, dst file name
 //offset to start in src and dst (0 for beginning)
