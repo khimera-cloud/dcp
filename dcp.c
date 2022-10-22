@@ -38,38 +38,45 @@ void usage(char* errmsg) {
 int main(int argc, char* argv[]) {
  int verbose = 0, dry = 0, sha = 0, copy = 0, skipxx = 0, onethread = 0;
 
- if (argc<2) usage("Not enough parameters!");
- if ((strcmp(argv[1],"-h")==0) || (strcmp(argv[1],"--help"))==0) usage(NULL);
- if ((strcmp(argv[1],"-V")==0) || (strcmp(argv[1],"--version"))==0) version(0);
- if ((strcmp(argv[1],"-l")==0) || (strcmp(argv[1],"--licenses"))==0) version(1);
+ if (argc<2) usage("Not enough parameters!"); // no parameters at all
+ if ((strcmp(argv[1],"-h")==0) || (strcasecmp(argv[1],"--help"))==0) usage(NULL);
+ if ((strcmp(argv[1],"-V")==0) || (strcasecmp(argv[1],"--version"))==0) version(0);
+ if ((strcmp(argv[1],"-l")==0) || (strcasecmp(argv[1],"--licenses"))==0) version(1);
 
- if (argc<3) usage("Not enough parameters!");
+ if (argc<3) usage("Not enough parameters!"); //only 1 parameter and not -h -V or -l
+
  for (int i = 1; i < argc-2; i++) {
-  if ((strcmp(argv[i],"-v")==0) || (strcmp(argv[i],"--verbose"))==0) {
-   verbose = 1;
-   continue;
-  }
-  if ((strcmp(argv[i],"-n")==0) || (strcmp(argv[i],"--dry"))==0) {
-   dry = 1;
-   continue;
-  }
-  if ((strcmp(argv[i],"-s")==0) || (strcmp(argv[i],"--sha256"))==0) {
-   sha = 1;
-   continue;
-  }
-  if ((strcmp(argv[i],"-c")==0) || (strcmp(argv[i],"--copy"))==0) {
-   copy = 1;
-   continue;
-  }
-  if ((strcmp(argv[i],"-x")==0) || (strcmp(argv[i],"--skipxx"))==0) {
-   skipxx = 1;
-   continue;
-  }
-  if ((strcmp(argv[i],"-1")==0) || (strcmp(argv[i],"--one-thread"))==0) {
-   onethread = 1;
-   continue;
-  }
-  usage("Unkown option!");
+  if ((argv[i][0]=='-') && (strlen(argv[i])>1)) {
+   if (argv[i][1]=='-') {
+    // parameter starts with --
+    if (strcasecmp(argv[1],"--help")==0) usage(NULL);    // Just in case
+    if (strcasecmp(argv[1],"--licenses")==0) version(1); //*
+    if (strcasecmp(argv[1],"--version")==0) version(0);  //**
+    if (strcasecmp(argv[i],"--verbose")==0) { verbose = 1; continue; }
+    if (strcasecmp(argv[i],"--dry")==0) { dry = 1; continue; }
+    if (strcasecmp(argv[i],"--sha256")==0) { sha = 1; continue; }
+    if (strcasecmp(argv[i],"--copy")==0) { copy = 1; continue; }
+    if (strcasecmp(argv[i],"--skipxx")==0) { skipxx = 1; continue; }
+    if (strcasecmp(argv[i],"--one-thread")==0) { onethread = 1; continue; }
+   }
+   else {
+    //only one - and after that letters may come
+    for (int j = 1; j < strlen(argv[i]); j++) {
+     switch (argv[i][j]) {
+      case 'h': { usage(NULL); }
+      case 'V': { version(0); }
+      case 'l': { version(1); }
+      case 'v': { verbose = 1; break; }
+      case 'n': { dry = 1; break; }
+      case 's': { sha = 1; break; }
+      case 'c': { copy = 1; break; }
+      case 'x': { skipxx = 1; break; }
+      case '1': { onethread = 1; break; }
+      default: { usage("Unknown option!\n"); }
+     }
+    }
+   }
+  } else usage("Unknown option!");
  }
 
  if (strcmp(argv[argc-2], argv[argc-1])==0) ex_err("Source and destination can't be the same!\n");
