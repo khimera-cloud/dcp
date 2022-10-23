@@ -7,7 +7,8 @@ char* humanDigest(XXH128_canonical_t* hash);
 //The larger it is, the less Hash algos are ran, but the more data moved if one differs
 //ALWAYS should be a multiply of BUFSIZE - the READ buffer, or BAAAD things can happen
 //This is 20MB, 20 times BUFSIZE which is 1MB
-#define HASHBLOCK BUFSIZE*20
+//#define HASHBLOCK BUFSIZE*20
+//MOVED TO defs.h as extern long!!!
 
 //This is the structure for a hashItem in HashList
 typedef struct hashItem {

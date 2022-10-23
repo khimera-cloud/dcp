@@ -10,9 +10,3 @@ These are not really ISSUES, but the characteristics of the algorythm to be awar
 
 - When the file size changes, if thread number (CPU core number) is >1, then the sizes of chunks
   also changes, making an offset to the boundary of reads and hash calculation, changing ALL hashes
-
-- Options that should be runtime:
-  - DEBUG flag
-  - HASHBLOCK size (maybe a multiplier number) ?
-  - Read buffer size??? (BUFSIZE)?
-  - Write output to log? Shell rediects are easier

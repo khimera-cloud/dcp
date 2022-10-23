@@ -47,11 +47,20 @@ defs.h
 
 Contains various defines like version information, copyrights, etc
 
-#define BUFSIZE 1048576
+
+(extern) long BUFSIZE 1048576
 -----------------------
-This is a 1M R/W buffer, for File (and block device) IO.
+This is a 1M (by default) I/O buffer, for File (and block device) read and write.
 Memory is allocated for this for every thread while calculating xxHash table
 (Threads count should equal the number of CPUs / Cores)
+
+(extern) long HASHBLOCK 1048576*20
+----------------------------
+Blocksize to hash in chunks by a hashing thread 
+The larger it is, the less Hash algos are ran, but the more data moved if one differs
+ALWAYS should be a multiply of BUFSIZE - the I/O buffer, or BAAAD things can happen
+- e.g. misaligment, overlapping chunks, etc.
+20MB by default, 20 times BUFSIZE which is 1MB
 
 #define ex_err(...)
 -------------------
@@ -119,13 +128,6 @@ char* humanDigest(XXH128_canonical_t* hash)
 Get a human readable digest of a canonical form of xxHash
 It's 32 bytes (+1 trailing 0) - 16x a 2 byte long hexadecimal character
 
-#define HASHBLOCK BUFSIZE*20
-----------------------------
-Blocksize to hash in chunks by a hashing thread 
-The larger it is, the less Hash algos are ran, but the more data moved if one differs
-ALWAYS should be a multiply of BUFSIZE - the I/O buffer, or BAAAD things can happen
-- e.g. misaligment, overlapping chunks, etc.
-20MB by default, 20 times BUFSIZE which is 1MB
 
 typedef struct hashItem {
  unsigned long offset;

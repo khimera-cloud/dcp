@@ -1,5 +1,5 @@
 # dcp
-Delta Copy for Linux
+Delta Copy for Linux version 0.2.1
 
 This program uses the great [xxHash](https://github.com/Cyan4973/xxHash) algorithm to copy only the differences between two files on a Linux system.
 It works well with large to extremly large files, for example copying a disk onto another.
@@ -15,7 +15,7 @@ Also comes a small utility dcp-cbr, which can change n bytes in a file to random
 
 ## licenses
 
-> dcp version 0.2, GPLv3
+> dcp version 0.2.1, GPLv3
 > https://github.com/khimera.cloud/dcp
 >
 > Additional licenses:
@@ -37,14 +37,19 @@ Also comes a small utility dcp-cbr, which can change n bytes in a file to random
 > -s, --sha256		calculate (and display) SHA256 hash after copy
 > -c, --copy		always copy the whole while if differs
 > -x, --skipxx		skip the xxHash on the whole file, just do xxHash tables
+>
+> Advenced options:
+>
 > -1, --one-thread	use only one thread while computing the chunks' hashes
+>     --io-buffer <N>	I/O buffer size for file operations in MB - Integer 1<=N<=100, default is 1
+>     --hash-chunk <N>	Hash chunk size, multiplier of io-buffer - Integer 1<=N<=100, default is 20
 
 ## dcp-cbr
 
 cbr stands for Change Byte Randomly, no motorcycles involved ;)
 It takes 1 parameter as a filename and optionally another for the number of runs (default is 1).
 
-> DCP Change Byte Randomly version 0.2, GPLv3
+> DCP Change Byte Randomly version 0.2.1, GPLv3
 > https://github.com/khimera.cloud/dcp
 >
 > Usage: dcp-cbr <filename> <#times (default is 1)>

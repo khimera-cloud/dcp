@@ -220,7 +220,7 @@ void* threadHash(void* arg) {
 #endif
   XXH3_128bits_update(state, buffer, bytesRead);
   //THIS SHOULD NOT HAPPEN, as HASH BLOCK SIZE needs to be a multiply of read buffer size BUFSIZE
-  if ((hashBlockRead+bytesRead) > HB) ex_err("Read more bytes than HASHBLOCK, the impossible happened?");
+  if ((hashBlockRead+bytesRead) > HB) ex_err("Read more bytes than HASHBLOCK, the impossible happened?\n");
   if ((hashBlockRead+bytesRead) < HB) hashBlockRead+=bytesRead;
   else { // This can only happen at equals, as we exited before if it was more
    XXH128_canonicalFromHash(&thread->hashL->hash[curHash]->digest, XXH3_128bits_digest(state));
