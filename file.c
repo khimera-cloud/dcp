@@ -1,4 +1,5 @@
-#include <stdio.h> //sprintf()
+#define _GNU_SOURCE //needed by asprintf() before including stdio.h
+#include <stdio.h> //asprintf()
 #include <fcntl.h> //open()
 #include <sys/stat.h> //stat()
 #include <sys/ioctl.h> //ioctl()
@@ -48,8 +49,7 @@ char* humanSize(unsigned long bytes) {
 
  //If zero
  if (count==0) {
-  ret=malloc(2);
-  sprintf(ret, "0");
+  asprintf(&ret, "0");
   return ret;
  }
 
@@ -68,11 +68,10 @@ char* humanSize(unsigned long bytes) {
 
  //Exabyte? XD - seriously, this function dies at Exabyte length...
 
- ret=malloc(6); // maximum 3 digits, 1 character for K,M,etc (+ 1 for B if needed) + trailing \0
  if (lastc == 'B') {
-  sprintf(ret, "%lu%c", cutsize, lastc);
+  asprintf(&ret, "%lu%c", cutsize, lastc);
  } else {
-  sprintf(ret, "%lu%cB", cutsize, lastc);
+  asprintf(&ret, "%lu%cB", cutsize, lastc);
  }
  return ret;
 }

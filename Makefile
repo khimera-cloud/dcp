@@ -2,7 +2,7 @@
 
 DEBDEPS:=gcc libxxhash-dev libssl-dev
 
-CC:=gcc -Wall
+CC:=gcc -O2 -Wall
 BINS:=dcp dcp-cbr
 HDRS:=$(shell ls *.h)
 OBJS:=dcp.o file.o hash.o compare.o
